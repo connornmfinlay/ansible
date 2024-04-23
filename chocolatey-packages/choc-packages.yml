@@ -1,0 +1,15 @@
+---
+tasks:
+  - name: Assign all files in prod-choco to a variable
+    ansible.builtin.find:
+      paths: /home/ansible/prod-choco
+      file_type: file 
+      use_regex: yes
+      patterns: ['^\/home\/ansible\/prod-choco\/.*\.nupkg$']
+    register: packages
+  - name: Copy files to chocolatey server
+    ansible.windows.win.copy:
+      src: "{{ item.path }}"
+      dest: "R:\\tools\\chocolatey.server\\App_Data\\Packages\\"
+    with_items: "{{ packages.files }}"
+    when: inventory_hostname in groups['meta-Tags_choco']

@@ -1,0 +1,16 @@
+---
+- hosts: "meta-Project_{{ windows_domain_controller_info['projectname'] }}:&{{ cloud }}"
+  gather_facts: false
+
+  tasks:
+  - name: Download
+    ansible.windows.win_shell: 'Invoke-WebRequest -Uri "https://packages.wazuh.com/4.x/windows/wazuh-agent-4.7.2-1.msi" -OutFile "$env:temp\wazuh-agent-4.7.2-1.msi"'
+    register: download_result
+  - name: Install
+    ansible.windows.win_shell: 'msiexec.exe /i $env:temp\wazuh-agent-4.7.2-1.msi /q WAZUH_MANAGER="10.22.10.35" WAZUH_REGISTRATION_SERVER="10.22.10.35"'
+    when: download_result.rc == 0
+  - name: Start Service
+    ansible.windows.win_service:
+      name: WazuhSvc
+      start_mode: auto
+      state: started

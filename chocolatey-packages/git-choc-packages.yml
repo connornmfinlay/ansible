@@ -1,0 +1,22 @@
+---
+#forces cloning of entire repo
+- name: Download files from Git repository
+  gather_facts: false
+
+  vars:
+    repository_url: "https://github.com/connornmfinlay/chocolatey"
+    destination_path: "R:\\tools\\chocolatey.server\\App_Data\\Packages\\"
+
+  tasks:
+    - name: Clone the repository
+      git:
+        repo: "{{ repository_url }}"
+        dest: "{{ destination_path }}"
+        clone: yes
+        depth: 1
+
+    - name: Copy files from prod directory
+      ansible.builtin.copy:
+        src: "{{ destination_path }}/prod/"
+        dest: "/path/to/desired/location/"
+        remote_src: no
