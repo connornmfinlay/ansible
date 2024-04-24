@@ -5,8 +5,8 @@
   tasks:
     - name: Update apt package cache
       apt:
-        update_cache: yes
-        force_apt_get: yes
+        update_cache: true
+        force_apt_get: true
 
     - name: Upgrade All Apt
       apt:
