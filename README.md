@@ -2,7 +2,7 @@
 
 ## rpi-cluster
 
-Scripts used to update all my raspberry pis
+Scripts used for various miscellaneos tasks to do with my raspberry pi cluster
 
 ## chocolatey-packages
 
