@@ -12,6 +12,9 @@
     - name: Gather Disk Space
       shell: "df -h --output=pcent / | awk 'NR==2 {print $1}'"
       register: disk_space
+    - name: Total Disk Size
+      shell: "df -H --output=pcent / | awk 'NR==2 {print $1}'"
+      register: disk_size
     - name: Usage Stats
       debug:
         msg:
@@ -19,3 +22,4 @@
           - "CPU Usage: {{ cpu_usage.stdout }}%"
           - "RAM Usage: {{ ram_usage.stdout }}%"
           - "Disk Space Used: {{ disk_space.stdout }}"
+          - "Disk Size: {{ disk_size.stdout }}"
