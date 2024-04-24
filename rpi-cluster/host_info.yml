@@ -6,9 +6,12 @@ become: false
 tasks:
   - name: Ping
     ansible.builtin.ping:
+
   - name: Distribution
     debug: msg= "{{ ansible_distribution }}"
+
   - name: Distribution Version
     debug: msg= "{{ ansible_distribution_version }}"
+
   - name: Distribution Major Version
     debug: msg= "{{ ansible_distribution_major_version }}"
