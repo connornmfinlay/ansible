@@ -13,7 +13,7 @@
       shell: "df -h --output=pcent / | awk 'NR==2 {print $1}'"
       register: disk_space
     - name: Total Disk Size
-      shell: "df -h | grep -vE '^Filesystem|tmpfs|cdrom' ; df -h / --total | tail -n 1"
+      shell: "df -h | awk 'NR==1 || $NF==\"/\" {print} END {print}'"
       register: disk_size
     - name: Usage Stats
       debug:
