@@ -1,0 +1,7 @@
+- name: Running Update Playbook
+  hosts: eidfsp01-update-app01
+  gather_facts: false
+  roles:
+    - update
+  vars_files:
+    - ../vars/vars.yml

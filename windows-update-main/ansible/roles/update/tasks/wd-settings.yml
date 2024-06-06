@@ -1,0 +1,14 @@
+---
+- name: Remove Windows Defender definitions
+  win_command: 'C:\Program Files(x86)\Windows Defender.exe\MpCmdRun.exe -RemoveDefinitions -DynamicSignatures'
+  vars:
+    ansible_become: true
+    ansible_become_user: Administrator
+    ansible_become_pass: "{{ ansible_password }}"
+
+- name: Update Windows Defender signatures
+  win_command: 'C:\Program Files(x86)\Windows Defender.exe\MpCmdRun.exe -SignatureUpdate'
+  vars:
+    ansible_become: true
+    ansible_become_user: Administrator
+    ansible_become_pass: "{{ ansible_password }}"

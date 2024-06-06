@@ -1,0 +1,14 @@
+clouds:
+  eidf075:
+    auth:
+      auth_url: https://api.os.eidf.epcc.ed.ac.uk:5000
+      username: skylight-admin
+      password: a60446eb815b3d2298953b22
+      project_id: 103dbe4160d7495ead282196605a9aa6
+      project_domain_name: SAFE
+      user_domain_name: terraform
+      project_name: eidf075
+    region_name: "RegionOne"
+    interface: "public"
+    endpoint_type: publicURL
+    identity_api_version: 3

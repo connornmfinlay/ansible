@@ -1,0 +1,7 @@
+- name: Running Checks on VM Playbook
+  hosts: eidfsp01-uiophjkl-app01
+  gather_facts: false
+  roles:
+    - info
+  vars_files:
+    - ../vars/vars.yml

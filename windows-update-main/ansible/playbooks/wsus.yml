@@ -1,0 +1,7 @@
+- hosts: groups['meta-Tags_clients']
+  gather_facts: false
+  roles:
+    - update.yml
+    - log.yml
+  vars_files:
+    - ../vars/vars.yml

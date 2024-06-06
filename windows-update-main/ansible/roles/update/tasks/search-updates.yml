@@ -1,0 +1,7 @@
+---
+- name: Search-only, return list of found updates
+  ansible.windows.win_updates:
+    category_names: SecurityUpdates
+    state: searched
+    log_path: ./ansible_wu.txt
+    register: found_updates

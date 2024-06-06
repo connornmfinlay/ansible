@@ -1,0 +1,32 @@
+---
+# might be a better to do this using powershell
+- name: Disable automatic downloads
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+    name: AUOptions
+    data: 1
+    type: dword
+
+- name: Check if vm is using WSUS server as default
+  win_reg_stat:
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+    name: WUServer
+  register: wsus_status
+  ignore_errors: true
+
+- name: Set WSUS server if not already configured
+  win_regedit:
+    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+    name: WUServer
+    data: "{{ groups['meta-name_wsus'][1] }}"
+    type: string
+  when: wsus_status.exists == false
+
+    
+    #- name: Set WSUS Statistics server if not already configured
+    #  win_regedit:
+    #    path: "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate\\AU"
+    #    name: WUStatusServer
+    #    data: "{{ groups['meta-name_wsus'] }}"
+    #    type: string
+    #  when: wsus_status.exists == false

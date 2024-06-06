@@ -1,0 +1,21 @@
+- name: Start Windows Update-related services
+  win_service:
+    name: "{{ item }}"
+    state: started
+  loop: "{{ services }}"
+
+- name: Run SFC scan
+  win_command: sfc /scannow
+  register: sfc_output
+
+- name: Display SFC output
+  debug:
+    var: sfc_output.stdout
+
+- name: Run DISM restore health
+  win_command: dism /online /cleanup-image /restorehealth
+  register: dism_output
+
+- name: Display DISM output
+  debug:
+    var: dism_output.stdout

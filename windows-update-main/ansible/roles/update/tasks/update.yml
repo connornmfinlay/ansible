@@ -1,0 +1,16 @@
+---
+- name: Start updates
+  win_updates:
+    category_names:
+      - CriticalUpdates
+      - SecurityUpdates
+    reboot: true
+    reboot_timeout: 3600
+
+- name: Install available updates
+  win_updates:
+    category_names:
+      - CriticalUpdates
+      - SecurityUpdates
+    reboot: true
+    reboot_timeout: 3600

@@ -1,0 +1,6 @@
+---
+collections:
+  - name: Openstack.Cloud
+    type: galaxy
+  - name: ansible.windows
+    type: galaxy

@@ -1,0 +1,18 @@
+# - name: Stopping Services
+#  ansible.builtin.include: stop-services.yml
+
+# - name: Changing windows defender settings
+#  ansible.builtin.include: wd-settings.yml
+
+- name: Running Update playbook
+  ansible.builtin.include: orig-update.yml
+
+# - name: Running original Update playbook
+# ansible.builtin.include: update-old.yml
+
+  #- name: Simple Update Playbook to force updates
+  #ansible.builtin.include: simple-update.yml
+
+# - name: Start Services
+#  ansible.builtin.include: start-services.yml
+# - include: reg-edit.yml

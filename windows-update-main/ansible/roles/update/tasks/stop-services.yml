@@ -1,0 +1,28 @@
+---
+- name: Stop Windows Update-related services
+  win_service:
+    name: "{{ item }}"
+    state: stopped
+  loop: "{{ services }}"
+  vars:
+    ansible_become: true
+    ansible_become_pass: "{{ ansible_password }}"
+    ansible_become_user: Administrator
+
+- name: Rename SoftwareDistribution folder
+  win_command: rename C:\Windows\SoftwareDistribution SoftwareDistribution.old
+  ignore_errors: true
+  vars:
+    ansible_become: true
+    ansible_become_pass: "{{ ansible_password }}"
+    ansible_become_user: Administrator
+
+- name: Rename catroot2 folder
+  win_command: rename C:\Windows\System32\catroot2 catroot2.old
+  ignore_errors: true
+  vars:
+    ansible_become: true
+    ansible_become_pass: "{{ ansible_password }}"
+    ansible_become_user: Administrator
+
+

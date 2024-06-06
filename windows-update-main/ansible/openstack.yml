@@ -1,0 +1,9 @@
+plugin: openstack.cloud.openstack
+expand_hostvars: true
+fail_on_errors: true
+clouds_yaml_path:
+  - clouds.yaml
+only_clouds:
+  - eidfsp01
+all_projects: false
+use_extra_vars: true
