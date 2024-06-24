@@ -1,0 +1,35 @@
+---
+- name: User Creation for RPi Cluster
+  hosts: all
+  remote_user: pi
+  vars_prompt:
+  
+    - name: username
+      prompt: Enter the username
+      private: false
+
+    - name: password
+      prompt: Enter the password
+      private: false
+  
+  tasks:
+
+    - name: Add the users
+      ansible.builtin.user:
+        name: '{{ username }}'
+        password: '{{ password }}'
+        home: true
+
+    - name: Receive public from head
+      ansible.builtin.authorized_key:
+	      user: '{{ username }}'
+        key: ~/.ssh/id_rsa.pub
+        state: present
+    
+    - name: Pipe keys to users
+      copy:
+        src: '{{ deploy_user }}'
+        dest: "/home/{{ username }}/.ssh/authorized_keys/{{ item }}"
+        mode: 0600
+      with_items:
+        - ~/.ssh/id_rsa.pub
