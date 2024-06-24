@@ -1,12 +1,13 @@
 ---
 - name: Creating global user
   hosts: all
-  become: yes
+  become: true
 
   tasks:
-  - name: Adding the user
-    user:
-      name: cfinlay
-      state: present
-      shell: /bin/bash
-      create_home: true
+    - name: Adding the user
+      user:
+        name: cfinlay
+        state: present
+        shell: /bin/bash
+        create_home: true
+        ssh_key_bits: 256
