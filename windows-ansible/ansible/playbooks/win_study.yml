@@ -1,0 +1,24 @@
+---
+- name: Fileserver tasks
+  hosts: "meta-name_fs01"
+  gather_facts: false
+  vars:
+    fileserver_tasks: yes
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/connection.yml
+  roles:
+    - role: win_study
+      tags: win_study
+
+- name: os-transfer tasks
+  hosts: os-transfer
+  # many ansible options set in /etc/ansible/hosts
+  gather_facts: false
+  vars:
+    transfer_tasks: yes
+  vars_files:
+    - ../vars/common.yml
+  roles:
+    - role: win_study
+      tags: win_study

@@ -1,0 +1,9 @@
+---
+- hosts: "meta-variant_file_server" # Change this to fileserver (common.yml and standard.yml)
+  gather_facts: false
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/connection.yml
+  roles:
+    - role: win_fileserver
+      tags: win_fileserver

@@ -1,0 +1,4 @@
+---
+ansible_user: cloud-user
+ansible_ssh_private_key_file: /home/hpcsys/.ssh/hpcsys-maas-key
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'

@@ -1,0 +1,5 @@
+---
+- import_tasks: features.yml
+- import_tasks: chocolatey.yml
+- import_tasks: rdgw.yml
+- import_tasks: start_menu.yml

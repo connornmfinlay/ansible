@@ -1,0 +1,318 @@
+---
+- hosts: localhost
+  vars:
+    vm_status: "{{ lookup('file', '/deployments/{{ os_project }}-{{ win_project }}/VM_STATUS') }}"
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/{{ project_zone }}.yml
+  tasks:
+    - name: End early if VM already created
+      block:
+        - meta: end_play
+      when: vm_status == 'created'
+
+    - name: Create workbench VMs (ASYNCHRONUS)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-wb{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "wb{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: workbench
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-wb{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(wb_quantity)|list}}"
+      async: 900
+      poll: 0
+      register: async_wb
+      when: 
+        - 'wb_quantity|int <= 5'
+        - 'wb_quantity|int > 1'
+
+    - name: Create workbench VMs (SEQUENTIAL)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-wb{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "wb{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: workbench
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-wb{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(wb_quantity)|list}}"
+      when: 'async_wb.skipped == true'
+
+    - name: Wait for workbench VMs to build
+      os_server_info:
+        name: "{{ os_project }}-{{ win_project }}-wb*"
+        filters:
+          vm_state: active
+      register: wb_status
+      until: 'wb_status.servers|length == wb_quantity|int'
+      retries: 100
+      delay: 60
+      when: 'async_wb.skipped == false'
+
+    - name: Create application VMs (ASYNCHRONUS)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-app{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "app{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: application
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-app{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(app_quantity)|list}}"
+      async: 900
+      poll: 0
+      register: async_app
+      when: 
+        - 'app_quantity|int <= 5'
+        - 'app_quantity|int > 1'
+
+    - name: Create application VMs (SEQUENTIAL)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-app{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "app{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: application
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-app{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(app_quantity)|list}}"
+      when: 'async_app.skipped == true'
+
+    - name: Wait for application VMs to build
+      os_server_info:
+        name: "{{ os_project }}-{{ win_project }}-app*"
+        filters:
+          vm_state: active
+      register: app_status
+      until: 'app_status.servers|length == app_quantity|int'
+      retries: 100
+      delay: 60
+      when: 'async_app.skipped == false'
+
+    - name: Create GPU VMs (ASYNCHRONUS)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-gpu{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "gpu{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: gpu
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-gpu{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(gpu_quantity)|list}}"
+      async: 900
+      poll: 0
+      register: async_gpu
+      when: 
+        - 'gpu_quantity|int <= 5'
+        - 'gpu_quantity|int > 1'
+
+    - name: Create GPU VMs (SEQUENTIAL)
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-gpu{{ '%02d' | format(item+1) }}"
+        state: "{{ state }}"
+        image: "{{ vm_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        security_groups: 
+          - domain_member
+          - user_vms
+        network: "{{ os_network }}"
+        metadata:
+          name: "gpu{{ '%02d' | format(item+1) }}"
+          win_project: "{{ win_project }}"
+          type: client
+          variant: gpu
+          os: windows
+        userdata: |
+          #ps1
+          Rename-Computer "{{ win_project }}-gpu{{ '%02d' | format(item+1) }}"
+          $admin = [adsi]("WinNT://./Administrator, user")
+          $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+          Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+      loop: "{{ range(gpu_quantity)|list}}"
+      when: 'async_gpu.skipped == true'
+
+    - name: Wait for GPU VMs to build
+      os_server_info:
+        name: "{{ os_project }}-{{ win_project }}-gpu*"
+        filters:
+          vm_state: active
+      register: gpu_status
+      until: 'gpu_status.servers|length == gpu_quantity|int'
+      retries: 100
+      delay: 60
+      when: 'async_gpu.skipped == false'
+
+    - name: Common VMs
+      block:
+        - name: Create Common VMs
+          tags: teardown
+          os_server:
+            name: "{{ item.name }}"
+            state: "{{ state }}"
+            image: "{{ vm_image }}"
+            flavor: 3661211f-673a-4777-8857-fd243d6c407d
+            timeout: 3600
+            boot_from_volume: true
+            volume_size: 40
+            terminate_volume: yes
+            security_groups: 
+              - domain_member
+              - "{{ item.security_group }}"
+            network: "{{ os_network }}"
+            metadata:
+              name: "{{ item.meta_name }}"
+              win_project: "{{ win_project }}"
+              type: server
+              variant: "{{ item.security_group }}" # just happens to match maybe change???
+              os: windows
+            userdata: |
+              #ps1
+              Rename-Computer "{{ win_project }}-{{ item.meta_name }}"
+              $admin = [adsi]("WinNT://./Administrator, user")
+              $admin.PSBase.Invoke("SetPassword", "{{ vm_initial_password }}")
+              Invoke-Expression ((New-Object System.Net.Webclient).DownloadString('{{ winrm_script_url }}'))
+          loop: "{{ standard_vms }}"
+          async: 900
+          poll: 0
+
+        - name: Wait for common VMs to build
+          os_server_info:
+            name: "{{ os_project }}-{{ win_project }}-*"
+            filters:
+              metadata:
+                type: server
+              vm_state: active
+          register: common_status
+          until: 'common_status.servers|length == 6'
+          retries: 100
+          delay: 60
+
+    - name: Create proxy
+      tags: teardown
+      os_server:
+        name: "{{ os_project }}-{{ win_project }}-proxy"
+        state: "{{ state }}"
+        image: "{{ proxy_image }}"
+        flavor: 3661211f-673a-4777-8857-fd243d6c407d
+        timeout: 900
+        boot_from_volume: true
+        volume_size: 40
+        terminate_volume: yes
+        key_name: proxy
+        security_groups: 
+          - proxy
+        network: "{{ os_network }}"
+        metadata:
+          name: "proxy"
+          win_project: "{{ win_project }}"
+          type: server
+          variant: web_proxy
+          os: linux
+      when: project_zone == 'protected'
+
+    - name: Set VM Status
+      vars:
+        ansible_connection: local
+      replace:
+        path: /deployments/{{ os_project }}-{{ win_project }}/VM_STATUS
+        regexp: '^pending$'
+        replace: 'created'
+      delegate_to: localhost
+      run_once: True

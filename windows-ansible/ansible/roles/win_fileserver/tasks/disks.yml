@@ -1,0 +1,95 @@
+---
+- name: Study data disks
+  tags: studydata_disk
+  block:
+    - name: Initialise study data disk
+      win_initialize_disk:
+        disk_number: 1
+
+    - name: Partition study data disk
+      win_partition:
+        drive_letter: "{{ studydata_drive_letter }}"
+        disk_number: 1
+        partition_size: -1
+        state: present
+
+    - name: Create NTFS filesystem on data disk
+      win_format:
+        drive_letter: "{{ studydata_drive_letter }}"
+        file_system: NTFS
+        new_label: "{{ studydata_volume_label }}"
+
+    - name: Create Archive directory on study data drive
+      win_file:
+        path: "{{ archive_folder }}"
+        state: directory
+      tags: never
+
+    - name: Set permissions on archive folder
+      win_acl:
+        path: "{{ archive_folder }}"
+        user: "{{ win_project }}\\Administrator"
+        type: allow
+        rights: Read,Write,Modify
+        state: present
+      tags: never
+
+    - name: Set permissions on archive folder
+      win_acl:
+        path: "{{ archive_folder }}"
+        user: "{{ item }}"
+        type: allow
+        rights: ReadAndExecute,Synchronize
+        state: absent
+      loop: [Administrators, Users]
+      tags: never
+
+    - name: Set permissions on archive folder
+      win_acl:
+        path: "{{ archive_folder }}"
+        user: BUILTIN\Users
+        type: allow
+        rights: FullControl
+        state: absent
+      loop: [Administrators, Users]
+      tags: never
+
+- name: File transfer disk
+  tags: filetransfer_disk
+  block:
+    - name: Initialise File Transfer disk
+      win_initialize_disk:
+        disk_number: 2
+
+    - name: Partition file transfer disk
+      win_partition:
+        drive_letter: "{{ filetransfer_drive_letter }}"
+        disk_number: 2
+        partition_size: -1
+        state: present
+
+    - name: Create NTFS filesystem on file transfer disk
+      win_format:
+        drive_letter: "{{ filetransfer_drive_letter }}"
+        file_system: NTFS
+        new_label: "{{ filetransfer_volume_label }}"
+
+    - name: Create Import and Export directories in T drive for File Transfer script
+      win_file:
+        path: "T:\\{{ item }}"
+        state: directory
+      with_items: ["Import", "Export"]
+
+    - name: Create logs directory in T drive
+      win_file:
+        path: "T:\\Logs"
+        state: directory
+
+    - name: Set permissions on logs folder on T drive
+      win_acl:
+        path: "T:\\logs"
+        user: file-transfer
+        type: allow
+        rights: Read,Write,Modify
+        state: present
+  when: inventory_hostname in groups['meta-name_fs01']

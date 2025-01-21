@@ -1,0 +1,34 @@
+- hosts: firm_patch
+  gather_facts: true
+  vars:
+    baseuri: "{{ ansible_host }}"
+    username: "{{ ilo_user }}"
+    password: "{{ ilo_password }}"
+    ansible_connection: local
+
+  tasks:
+    - name: Get PCI device details
+      hpe.ilo.ilo_network:
+        category: Systems
+        command: GetPCIDevices
+        baseuri: "{{ ansible_host }}"
+        username: "{{ ilo_user }}"
+        password: "{{ ilo_password }}"
+
+    - name: Get PCI slot details
+      hpe.ilo.ilo_network:
+        category: Systems
+        command: GetPCISlots
+        baseuri: "{{ ansible_host }}"
+        username: "{{ ilo_user }}"
+        password: "{{ ilo_password }}"
+
+    - name: Get physical network adapter details
+      hpe.ilo.ilo_network:
+        category: Systems
+        command: GetNetworkAdapters
+        baseuri: "{{ ansible_host }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+
+

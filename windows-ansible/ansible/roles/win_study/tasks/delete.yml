@@ -1,0 +1,31 @@
+---
+- name: Delete Study
+  block:
+    - name: Move study folder to archive
+      ansible.windows.win_powershell:
+        script: |
+          Move-Item -Path "{{ study_folder }}" -Destination S:\Archived_Studies
+    
+    - name: Removing folders
+      block:
+        - name: Delete study folders on T drive
+          ansible.windows.win_file:
+            path: "T:\\{{ item }}\\{{ study_code }}"
+            state: absent
+          with_items: ["Import", "Export"]
+
+        - name: Delete study folders on T drive
+          ansible.windows.win_file:
+            path: "T:\\{{ item }}\\{{ study_code }}"
+            state: absent
+          with_items: ["Import", "Export"]
+
+    - name: Delete AD group
+      microsoft.ad.group:
+        name: "{{ study_code }}"
+        description: "{{ study_code }} study"
+        path: "ou=Project Groups,dc={{ win_project }},dc=loc"
+        scope: domainlocal
+        category: security
+        state: absent
+      delegate_to: "{{ os_project }}-{{ win_project }}-dc01"      

@@ -1,0 +1,28 @@
+- hosts: firm_patch
+  gather_facts: true
+  vars:
+    baseuri: "{{ ansible_host }}"
+    username: "{{ ilo_user }}"
+    password: "{{ ilo_password }}"
+    ansible_connection: local
+    datatype: FirmwareInventory
+
+  tasks:
+    - name: Get Firmware Inventory
+      community.general.redfish_info:
+        category: Update
+        command: GetFirmwareInventory
+        baseuri: "{{ baseuri }}"
+        username: "{{ username }}"
+        password: "{{ password }}"
+      register: result_attr    
+    
+    - name: Debug
+      debug:
+        var: result_attr
+
+    - name: Write firmware output to local file
+      ansible.builtin.copy:
+        content: "{{ result_attr | to_nice_json }}"
+        dest: "../outputs/firmware_version_{{ inventory_hostname }}_{{ ansible_date_time.date }}.json"
+      delegate_to: localhost

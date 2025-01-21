@@ -1,0 +1,47 @@
+---
+- name: Copy start menu to workbench VMs
+  tags:
+    - copy_startmenu
+    - workbench_startmenu
+  block:
+    - name: Copy start menu to workbench VMs
+      win_copy:
+        src: "workbench.xml"
+        dest: "C:\\eidf\\{{ win_project }}.xml"
+        force: true
+      when: inventory_hostname in groups['meta-variant_workbench']
+  when: groups['meta-variant_workbench'] is defined
+
+- name: Copy start menu to application VMs
+  tags:
+    - copy_startmenu
+    - application_startmenu
+  block:
+    - name: Copy start menu to application VMs
+      win_copy:
+        src: "application.xml"
+        dest: "C:\\eidf\\{{ win_project }}.xml"
+        force: true
+      when: inventory_hostname in groups['meta-variant_application']
+  when: groups['meta-variant_application'] is defined
+
+- name: Copy start menu to workbench VMs
+  tags:
+    - copy_startmenu
+    - gpu_startmenu
+  block:
+    - name: Copy start menu to gpu VMs
+      win_copy:
+        src: "gpu.xml"
+        dest: "C:\\eidf\\{{ win_project }}.xml"
+        force: true
+      when: inventory_hostname in groups['meta-variant_gpu']
+  when: groups['meta-variant_gpu'] is defined
+
+- name: Update Group Policy
+  win_shell: gpupdate /force /boot /logoff
+  tags: 
+    - copy_startmenu
+    - workbench_startmenu
+    - application_startmenu
+    - gpu_startmenu

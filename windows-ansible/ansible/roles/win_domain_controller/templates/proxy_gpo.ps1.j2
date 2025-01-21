@@ -1,0 +1,13 @@
+New-GPO -Name "Squid Proxy" -comment "Configure Client VMs to use Squid HTTP proxy"
+Set-GPRegistryValue -Name "Squid Proxy" -ValueName "ProxyEnable" -key "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Value 1 -Type DWord
+Set-GPRegistryValue -Name "Squid Proxy" -ValueName "ProxyServer" -key "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Value "{{ proxy_address }}" -Type String
+Set-GPRegistryValue -Name "Squid Proxy" -ValueName "ProxyOverride" -key "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings" -Value "<local>,{{ win_project }}-choc.{{ win_project }}.loc" -Type String
+Set-GPRegistryValue -Name "Squid Proxy" -ValueName "Proxy" -key "HKEY_CURRENT_USER\Software\Policies\Microsoft\Internet Explorer\Control Panel" -Value 1 -Type DWord
+
+$DomainInfo = Get-ADDomain
+$DomainOU = $DomainInfo.DistinguishedName
+$workbenchOU = (Get-ADOrganizationalUnit -Identity "OU=Workbench,$DomainOU").DistinguishedName
+
+New-GPLink -Name "Squid Proxy" -Target $workbenchOU
+
+Write-Output "THIS SCRIPT ACTUALLY RAN" | Out-File -FilePath 'C:\eidf\ProxyScript.txt'

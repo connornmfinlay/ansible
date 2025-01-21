@@ -1,0 +1,29 @@
+---
+- name: Unmount Filesystem
+  tags: teardown
+  block:
+    - name: Unmount filesystem on os-transfer
+      ansible.posix.mount:
+        src: "//{{ hostvars[inventory_hostname].ansible_host }}/File_Transfer"
+        path: "{{ mount_directory }}"
+        opts: "credentials={{ credentials_path }},iocharset=utf8"
+        state: absent
+        fstype: cifs
+
+    - name: Remove MFT directory
+      file:
+        path: "{{ mft_directory }}"
+        state: absent
+
+    - name: Remove entry from space-domains.txt
+      lineinfile:
+        path: "{{ space_domain_path }}"
+        state: absent
+        regexp: "^{{ os_project }}"
+        line: "{{ os_project }}-{{ win_project }}"
+
+    - name: Remove smb-credential template
+      file:
+        path: "{{ credentials_path }}"
+        state: absent
+  delegate_to: os-transfer

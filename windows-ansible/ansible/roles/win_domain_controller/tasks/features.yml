@@ -1,0 +1,21 @@
+---
+- name: Domain Controller Features
+  tags: dc_features
+  block:
+    - name: Install required features for domain controller
+      win_feature:
+        name: 
+          - DNS
+          - AD-Domain-Services
+          - RSAT-AD-Tools
+          - RDS-Connection-Broker
+          - RDS-Licensing
+        include_management_tools: yes
+        state: present
+      register: feature_status
+
+    - name: Rebooting Servers post feature installation
+      win_reboot:
+        reboot_timeout_sec: 1200
+      when: feature_status.reboot_required == true
+  any_errors_fatal: true

@@ -1,0 +1,13 @@
+---
+- name: Swap to domain Administrator
+  tags:
+    - join_clients
+    - change_username
+  vars:
+    ansible_connection: local
+  lineinfile:
+    path: /deployments/{{ os_project }}-{{ win_project }}/ansible/vars/connection.yml
+    regexp: '^ansible_user:'
+    line: 'ansible_user: {{ win_project|upper }}\Administrator' 
+  delegate_to: localhost
+  run_once: True

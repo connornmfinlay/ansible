@@ -1,0 +1,9 @@
+---
+- hosts: "meta-variant_domain_controller"
+  gather_facts: false
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/connection.yml
+  roles:
+    - role: win_domain_controller
+      tags: win_domain_controller

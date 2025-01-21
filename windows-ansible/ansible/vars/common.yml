@@ -1,0 +1,29 @@
+####### Managed by Rundeck #######
+os_project: %OS_PROJECT%
+win_project: %WIN_PROJECT%
+fs_vol_size: %FS_VOL_SIZE%
+wb_quantity: %WB_QUANTITY%
+app_quantity: %APP_QUANTITY%
+gpu_quantity: %GPU_QUANTITY%
+project_zone: %PROJECT_ZONE%
+vm_initial_password: %VM_INITIAL_PASSWORD%
+########## Do Not Edit ##########
+
+vm_image: 3f193ea7-321d-418b-a233-da64661b08b1
+proxy_image: 62669efd-ee43-4148-848c-b82f49ca2f45
+server_vm_flavor: 3661211f-673a-4777-8857-fd243d6c407d
+user_vm_flavor: 3661211f-673a-4777-8857-fd243d6c407d
+gpu_flavor: b07fc115-e48e-4289-b220-baae18c8db8a
+
+filetransfer_user: file-transfer
+filemanager_user: file-manager
+
+winrm_script_url: http://10.24.3.242/ConfigureRemotingForAnsible.ps1
+
+standard_vms:
+  - { name: "{{ os_project }}-{{ win_project }}-dc01", security_group: "domain_controller", meta_name: dc01 }
+  - { name: "{{ os_project }}-{{ win_project }}-dc02", security_group: "domain_controller", meta_name: dc02 }
+  - { name: "{{ os_project }}-{{ win_project }}-fs01", security_group: "file_server", meta_name: fs01 }
+  - { name: "{{ os_project }}-{{ win_project }}-fs02", security_group: "file_server", meta_name: fs02 }
+  - { name: "{{ os_project }}-{{ win_project }}-wsus", security_group: "wsus_server", meta_name: wsus }
+  - { name: "{{ os_project }}-{{ win_project }}-choc", security_group: "chocolatey_server", meta_name: choc }

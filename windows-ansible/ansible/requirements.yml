@@ -1,0 +1,24 @@
+---
+collections:
+  - name: ansible.posix
+    version: 1.6.0
+  - name: ansible.utils
+    version: 5.1.1
+  - name: ansible.windows
+    version: 2.5.0
+  - name: checkmk.general
+    version: 5.2.1
+  - name: chocolatey.chocolatey
+    version: 1.5.1
+  - name: community.general
+    version: 9.4.0
+  - name: community.windows
+    version: 2.3.0
+  - name: microsoft.ad
+    version: 1.7.1
+  - name: openstack.cloud
+    version: 2.2.0
+
+roles:
+  - name: jborean93.win_chocolatey_server
+    version: 0.1.1

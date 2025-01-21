@@ -1,0 +1,4 @@
+study_folder: \\{{ win_project }}.loc\Study_Data\{{ study_code }}
+exporter_group: "{{ study_code }}-exporter"
+
+valid_actions: ["create", "reset", "disable", "enable", "modify"]

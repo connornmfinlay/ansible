@@ -1,0 +1,10 @@
+---
+- hosts: "{{ target_host }}"
+  gather_facts: true
+  vars_files:
+    - ../vars/common.yml 
+    - ../vars/connection.yml
+  roles:
+    - role: win_update
+      tags: win_update
+

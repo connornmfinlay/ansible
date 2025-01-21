@@ -1,0 +1,5 @@
+---
+checkmk_server_url: "http://10.22.10.195/"
+checkmk_site: "pan_cr4eidf"
+checkmk_automation_user: automation
+checkmk_server_ip: 10.21.25.249

@@ -1,0 +1,50 @@
+---
+
+- name: Gather the package facts
+  ansible.builtin.package_facts:
+    manager: apt
+
+- name: Setup CheckMK agent
+  block:
+    - name: Include CheckMK variables
+      ansible.builtin.include_vars:
+        file: ../vars/checkmk.yml
+
+    - name: Add proxy host into checkMK
+      block:
+        - name: Add {{ inventory_hostname }} to "/{{ os_project }}-{{ win_project }}" CheckMK 
+          checkmk.general.host:
+            server_url: "{{ checkmk_agent_protocol }}://{{ checkmk_server }}:80/"
+            site: "{{ checkmk_agent_site }}"
+            validate_certs: "true"
+            automation_user: "{{ checkmk_agent_user }}"
+            automation_secret: "{{ checkmk_password }}"
+            folder: "/{{ os_project }}-{{ win_project }}"
+            name: "{{ inventory_hostname }}"
+            attributes:
+              ipaddress: "{{ hostvars[inventory_hostname].ansible_host }}"
+            state: "present"
+          notify: "activate changes"
+      rescue:
+        - name: Add {{ inventory_hostname }} to "/" CheckMK 
+          checkmk.general.host:
+            server_url: "{{ checkmk_agent_protocol }}://{{ checkmk_server }}:80/"
+            site: "{{ checkmk_agent_site }}"
+            validate_certs: "true"
+            automation_user: "{{ checkmk_agent_user }}"
+            automation_secret: "{{ checkmk_password }}"
+            folder: "/"
+            name: "{{ inventory_hostname }}"
+            attributes:
+              ipaddress: "{{ hostvars[inventory_hostname].ansible_host }}"
+            state: "present"
+          notify: "activate changes"
+
+    - name: Install CheckMK Agent
+      import_role:
+        name: checkmk.general.agent
+      when: ansible_facts.packages['check-mk-agent'] | default('Missing') == 'Missing'
+
+    - name: register agent for TLS
+      shell: |
+        cmk-agent-ctl register --hostname {{ inventory_hostname }} --server {{ checkmk_server }} --site {{ checkmk_agent_site }} --user {{ checkmk_agent_user }} --password '{{ checkmk_password }}' --trust-cert

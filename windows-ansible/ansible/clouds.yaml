@@ -1,0 +1,14 @@
+clouds:
+  %OS_PROJECT%:
+    auth:
+      auth_url: https://api.os.eidf.epcc.ed.ac.uk:5000
+      username: %OS_USERNAME%
+      password: %OS_PASSWORD%
+      project_id: %OS_PROJECT_ID%
+      project_domain_name: SAFE
+      user_domain_name: terraform
+      project_name: %OS_PROJECT%
+    region_name: "RegionOne"
+    interface: "public"
+    endpoint_type: publicURL
+    identity_api_version: 3

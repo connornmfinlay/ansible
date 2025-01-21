@@ -1,0 +1,32 @@
+---
+- name: DFS Features
+  tags: dfs_features
+  block:
+    - name: Install DFS features
+      win_feature:
+        name: 
+          - FS-DFS-Namespace
+          - FS-DFS-Replication
+          - RSAT-DFS-Mgmt-con
+        state: present
+        inlcude_management_tools: True
+      register: feature_status
+
+    - name: Rebooting Servers post feature installation
+      win_reboot:
+        reboot_timeout_sec: 1200
+      when: feature_status.reboot_required == true
+
+- name: DFS Features
+  tags: dfs_powershell
+  block:
+    - name: Install NuGet packageprovider (requirement for xDFS DSC module installation)
+      ansible.windows.win_powershell:
+        script: |
+          Find-PackageProvider -Name Nuget -ForceBootstrap -IncludeDependencies -Force
+
+    - name: Install xDFS DSC module
+      win_psmodule:
+        name: xDFS
+        state: Present
+        accept_license: true

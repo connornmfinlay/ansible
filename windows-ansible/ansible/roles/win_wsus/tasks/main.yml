@@ -1,0 +1,4 @@
+---
+- import_tasks: disk.yml
+- import_tasks: features.yml
+- import_tasks: configure.yml

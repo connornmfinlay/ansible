@@ -1,0 +1,26 @@
+$gp_name = "Map Study Drive"
+
+New-GPO -Name $gp_name -comment "Registry Keys To Map Study Drive"
+
+$map_regkey = "HKEY_CURRENT_USER\Network\{{ study_data_letter }}"
+$label_regkey = "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\##{{ win_project }}#{{ share_name }}"
+
+Set-GPRegistryValue -Name "$gp_name" -ValueName "ConnectFlags" -key "$map_regkey" -Value 0 -Type DWord
+Set-GPRegistryValue -Name "$gp_name" -ValueName "ConnectionType" -key "$map_regkey" -Value 1 -Type DWord
+Set-GPRegistryValue -Name "$gp_name" -ValueName "DeferFlags" -key "$map_regkey" -Value 4 -Type DWord
+Set-GPRegistryValue -Name "$gp_name" -ValueName "ProviderFlags" -key "$map_regkey" -Value 1 -Type DWord
+Set-GPRegistryValue -Name "$gp_name" -ValueName "ProviderName" -key "$map_regkey" -Value "Microsoft Windows Network" -Type String
+Set-GPRegistryValue -Name "$gp_name" -ValueName "ProviderType" -key "$map_regkey" -Value 131072 -Type DWord
+Set-GPRegistryValue -Name "$gp_name" -ValueName "RemotePath" -key "$map_regkey" -Value "{{ study_data_dfs }}" -Type String
+Set-GPRegistryValue -Name "$gp_name" -ValueName "UserName" -key "$map_regkey" -Value "" -Type String
+
+Set-GPRegistryValue -Name "$gp_name" -ValueName "_LabelFromDesktopINI" -key "$labe_regkey" -Value "" -Type String
+Set-GPRegistryValue -Name "$gp_name" -ValueName "_LabelFromReg" -key "$label_regkey" -Value "{{ study_data_label }}" -Type String
+
+$DomainInfo = Get-ADDomain
+$DomainOU = $DomainInfo.DistinguishedName
+$workbenchOU = (Get-ADOrganizationalUnit -Identity "OU=Workbench,$DomainOU").DistinguishedName
+
+New-GPLink -Name $gp_name -Target $workbenchOU
+
+Write-Output "THIS SCRIPT ACTUALLY RAN" | Out-File -FilePath 'C:\eidf\StudyDriveScript.txt'

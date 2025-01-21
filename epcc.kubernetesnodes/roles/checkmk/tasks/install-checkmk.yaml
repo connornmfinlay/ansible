@@ -1,0 +1,44 @@
+- name: Copy CheckMK Agent to Debian Hosts
+  copy:
+          src: ../resources/check-mk-agent_2.2.0p4-1_all.deb
+          dest: /home/hpcsys
+  when:
+    - ansible_pkg_mgr == "apt"
+
+- name: Copy CheckMK Agent to RHEL Hosts
+  copy:
+          src: ../resources/check-mk-agent-2.2.0p4-1.noarch.rpm
+          dest: /home/hpcsys
+  when:
+    - ansible_pkg_mgr in ["yum", "dnf"]
+
+- name: Install CheckMK on Deb
+  apt:
+          deb: /home/hpcsys/check-mk-agent_2.2.0p4-1_all.deb
+  when:
+    - ansible_pkg_mgr == "apt"
+
+- name: Install CheckMK RPM
+  yum:
+          name: /home/hpcsys/check-mk-agent-2.2.0p4-1.noarch.rpm
+          state: present
+  when:
+    - ansible_pkg_mgr in ["yum", "dnf"]
+
+- name: Get FirewallD Status
+  systemd:
+          name: firewalld
+  register: firewalld_status
+
+  #- debug:
+  # var: firewalld_status.status.ActiveState
+
+- name: Open Firewall on RHEL Based Systems
+  command: firewall-cmd --add-port=6556/tcp --zone=public
+  when:
+    - firewalld_status.status.ActiveState == 'active'
+
+- name: Open Firewall on RHEL Based Systems
+  command: firewall-cmd --add-port=6556/tcp --zone=public --permanen 
+  when:
+    - firewalld_status.status.ActiveState == 'active'

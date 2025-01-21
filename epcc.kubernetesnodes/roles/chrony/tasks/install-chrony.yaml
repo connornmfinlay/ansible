@@ -1,0 +1,24 @@
+- name: Ensure Chrony is Insalled
+  package:
+          name: chrony
+          state: present
+
+- name: Copy Chrony config file
+  copy:
+          src: ../resources/chrony.conf
+          dest: /etc/chrony.conf
+  when: ansible_distribution == 'Rocky'
+
+- name: Copy Chrony config file
+  copy:
+          src: ../resources/chrony.conf
+          dest: /etc/chrony/chrony.conf
+  when: ansible_distribution == 'Ubuntu'
+
+- name: Restart Chrony
+  service:
+          name: chronyd
+          state: restarted
+
+- name: Run Chrony Makestep
+  shell: chronyc -a makestep

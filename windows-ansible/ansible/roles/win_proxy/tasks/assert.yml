@@ -1,0 +1,93 @@
+---
+
+- name: assert | Test squid_port
+  ansible.builtin.assert:
+    that:
+      - squid_port is defined
+      - squid_port is number
+      - squid_port > 0
+      - squid_port < 65536
+    quiet: true
+
+- name: assert | Test squid_cache_dir
+  ansible.builtin.assert:
+    that:
+      - squid_cache_dir is defined
+      - squid_cache_dir is string
+      - squid_cache_dir.split(" ")[0] in [ "ufs", "aufs", "diskd", "rock", "null" ]
+    quiet: true
+
+- name: assert | Test squid_acls
+  ansible.builtin.assert:
+    that:
+      - squid_acls is iterable
+    quiet: true
+  when:
+    - squid_acls is defined
+
+- name: assert | Test item in squid_acls
+  ansible.builtin.assert:
+    that:
+      - item.name is defined
+      - item.name is string
+      - item.name is not none
+      - item.classifier is defined
+      - item.classifier is string
+      - item.classifier is not none
+      - item.value is defined
+      - item.value is string
+      - item.value is not none
+    quiet: true
+  loop: "{{ squid_acls }}"
+  loop_control:
+    label: "{{ item.name }}"
+  when:
+    - squid_acls is defined
+
+- name: assert | Test item in squid_http_access
+  ansible.builtin.assert:
+    that:
+      - item.state is defined
+      - item.state is string
+      - item.state is not none
+      - item.acls is defined
+      - item.acls is iterable
+    quiet: true
+  loop: "{{ squid_http_access }}"
+  loop_control:
+    label: "{{ item.state }}"
+  when:
+    - squid_http_access is defined
+
+- name: assert | Test squid_rules
+  ansible.builtin.assert:
+    that:
+      - squid_rules is iterable
+    quiet: true
+  when:
+    - squid_rules is defined
+
+- name: assert | Test item in squid_rules
+  ansible.builtin.assert:
+    that:
+      - item.acl is defined
+      - item.acl is string
+      - item.acl is not none
+      - item.decision is defined
+      - item.decision is string
+      - item.decision in [ "allow", "deny" ]
+    quiet: true
+  loop: "{{ squid_rules }}"
+  loop_control:
+    label: "{{ item.acl }}"
+  when:
+    - squid_rules is defined
+
+- name: assert | Test squid_logformat
+  ansible.builtin.assert:
+    that:
+      - squid_logformat is string
+      - squid_logformat.split(" ") | length > 1
+    quiet: true
+  when:
+    - squid_logformat is defined

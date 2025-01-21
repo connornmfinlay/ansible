@@ -1,0 +1,116 @@
+---
+- name: Password
+  tags: 
+    - password
+    - password_check
+    - always
+  block:
+    - name: Check for pending password status
+      set_fact:
+        ansible_password: "{{ vm_initial_password }}"
+      run_once: true
+      when: password_status == 'pending' or
+            password_status == 'change'
+
+    - name: Check for finished or change password status
+      set_fact:
+        ansible_password: "{{ vm_password }}"
+      run_once: true
+      when: password_status == 'finished' 
+
+    - name: wait for connention to VM
+      ansible.builtin.wait_for_connection:
+        delay: 10
+        timeout: 600
+      any_errors_fatal: true
+
+- name: Set WinRM to delayed startup
+  ansible.windows.win_service:
+    name: WinRM
+    start_mode: delayed
+  tags: winrm_delayed
+
+- name: Reboot VMs before continuing
+  win_reboot:
+  # Need a condition here for reruns
+
+- name: Remove Local Admin
+  tags: 
+    - remove_admin
+  block:
+    - name: Delete admin user account
+      win_user:
+        name: Admin
+        state: absent
+
+    - name: Delete Admin Home folder
+      win_file:
+        path: "C:\\Users\\Admin"
+        state: absent 
+  rescue:
+    - name: Reboot VMs
+      win_reboot:
+
+    - name: Try again to delete Admin Home folder
+      win_file:
+        path: "C:\\Users\\Admin"
+        state: absent
+
+- name: Set a proxy
+  vars:
+    proxy_ip: "{{ os_project }}-{{ win_project }}-proxy"
+  tags: proxy
+  win_inet_proxy:
+    proxy: "{{ hostvars[proxy_ip].ansible_host }}:3128"
+    bypass:
+    - <local>
+  when: |
+    inventory_hostname in groups['meta-type_client']|default([]) and
+    project_zone == 'protected'
+
+- name: Create EIDF directory in system drive
+  win_file:
+    path: "C:\\eidf"
+    state: directory
+  tags: eidf_dir_create
+
+- name: Set timezone
+  community.windows.win_timezone:
+    timezone: GMT Standard Time
+  tags: timezone
+
+- name: Activation
+  tags:
+    - activate_windows
+  block: 
+    - name: Set KMS server
+      ansible.windows.win_shell: cscript C:\Windows\System32\slmgr.vbs /skms activate.is.ed.ac.uk
+      tags: set_kms
+
+    - name: Activate Windows
+      ansible.windows.win_shell: cscript C:\Windows\System32\slmgr.vbs /ipk {{ product_key }}
+      tags: set_key
+
+- name: Administrator Password
+  tags:
+    - password
+    - password_change
+    - always
+  block: 
+    - name: Change Administrator password
+      win_user:
+        name: Administrator
+        password: "{{ vm_password }}"
+
+    - name: Set Password Status
+      vars:
+        ansible_connection: local
+      replace:
+        path: /deployments/{{ os_project }}-{{ win_project }}/PASSWORD
+        regexp: '^{{ password_status }}$'
+        replace: 'finished'
+      delegate_to: localhost
+      run_once: True
+  when: password_status == 'pending' or 
+        password_status == 'change'
+      

@@ -1,0 +1,21 @@
+policy_path: "C:\\Windows\\SYSVOL\\sysvol\\{{ win_project }}.loc\\Policies"
+
+group_policy_script: OpenStackADBuild.ps1
+server_hardening_script: serverhardening.ps1
+squid_proxy_script: proxy_gpo.ps1
+squid_proxy_script_tmpl: proxy_gpo.ps1.j2
+script_dir: C:\eidf
+
+mapped_drive_script: mapped_drive.ps1
+mapped_drive_script_tmpl: mapped_drive.ps1.j2
+share_name: Study_Data
+study_data_dfs: \\{{ win_project }}\{{ share_name }}
+study_data_label: Study Data
+study_data_letter: S
+
+OUs:
+  - Project Users
+  - Project Groups
+  - Disabled Users
+  - Management Computers
+  - Workbench

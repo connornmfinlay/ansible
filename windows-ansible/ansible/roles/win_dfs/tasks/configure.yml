@@ -1,0 +1,63 @@
+---
+- name: Configure dfs
+  tags: configure_dfs
+  block:
+    - name: Configure DFS namespace root
+      win_dsc:
+        resource_name: xDFSNamespaceRoot
+        Ensure: Present
+        EnableAccessBasedEnumeration: True
+        Path: \\{{ win_project }}.loc\Study_Data
+        TargetPath: \\{{ win_project }}-fs01\Study_Data_DFS
+        Type: DomainV2
+        PsDscRunAsCredential_username: Administrator
+        PsDscRunAsCredential_password: "{{ ansible_password }}"
+
+    - name: Configure DFS replicated group
+      win_dsc:
+        resource_name: xDFSReplicationGroup
+        Ensure: Present
+        GroupName: "{{ win_project }}_Data"
+        DomainName: "{{ win_project }}.loc"
+        # Testing this:
+        Folders: "Study_Data_DFS"
+        PsDscRunAsCredential_username: Administrator
+        PsDscRunAsCredential_password: "{{ ansible_password }}"
+        Members: "{{ win_project }}-fs01, {{ win_project }}-fs02"
+
+    - name: Configure DFS replication connections
+      win_dsc:
+        resource_name: xDFSReplicationGroupConnection
+        Ensure: Present
+        GroupName: "{{ win_project }}_Data"
+        SourceComputerName: "{{ win_project }}-fs01"
+        DestinationComputerName: "{{ win_project }}-fs02"
+        DomainName: "{{ win_project }}.loc"
+        PsDscRunAsCredential_username: Administrator
+        PsDscRunAsCredential_password: "{{ ansible_password }}"
+
+    - name: Configure DFS replication primary member (FS01) and membership
+      win_dsc:
+        resource_name: xDFSReplicationGroupMembership
+        GroupName: "{{ win_project }}_Data"
+        FolderName: "Study_Data_DFS"
+        ContentPath: S:\
+        ComputerName: "{{ win_project }}-fs01"
+        PrimaryMember: true
+        #StagingPathQuotaInMB: 16384
+        DomainName: "{{ win_project }}.loc"
+        PsDscRunAsCredential_username: Administrator
+        PsDscRunAsCredential_password: "{{ ansible_password }}"
+
+    - name: Configure DFS replication secondary member (FS02) and membership
+      win_dsc:
+        resource_name: xDFSReplicationGroupMembership
+        GroupName: "{{ win_project }}_Data"
+        FolderName: "Study_Data_DFS"
+        ContentPath: S:\
+        ComputerName: "{{ win_project }}-fs02"
+        #StagingPathQuotaInMB: 16384
+        DomainName: "{{ win_project }}.loc"
+        PsDscRunAsCredential_username: Administrator
+        PsDscRunAsCredential_password: "{{ ansible_password }}"
+  when: inventory_hostname in groups['meta-name_fs01']

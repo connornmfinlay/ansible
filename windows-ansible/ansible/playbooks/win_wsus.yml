@@ -1,0 +1,9 @@
+---
+- hosts: "meta-variant_wsus_server"
+  gather_facts: false
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/connection.yml
+  roles:
+    - role: win_wsus
+      tags: win_wsus

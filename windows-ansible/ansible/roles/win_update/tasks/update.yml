@@ -1,0 +1,30 @@
+---
+- name: Update VM
+  tags: update_vm
+  block:
+    - name: Clear update cache
+      win_shell: |
+        UsoClient RefreshSettings
+        UsoClient ScanInstallWait
+
+    - name: Update Windows
+      ansible.windows.win_updates:
+        category_names: '*'
+        skip_optional: true
+        reboot: true
+        reboot_timeout: 3600
+      ignore_errors: true
+
+    - name: Update Windows (again)
+      ansible.windows.win_updates:
+        category_names: '*'
+        reboot: true
+        reboot_timeout: 3600
+      ignore_errors: true
+
+    - name: Logging action
+      vars:
+        ansible_connection: local
+      ansible.builtin.shell:
+        cmd:  echo "Update {{ os_project }}-{{ ansible_hostname }} $(date '+%Y-%m-%d %H:%M:%S')" >> /deployments/{{ os_project }}-{{ win_project }}/action.log
+      delegate_to: localhost

@@ -1,0 +1,41 @@
+---
+- name: Setup Mount
+  tags: setup_mount
+  block:
+    - name: Create the mount point
+      file:
+        path: "{{ mount_directory }}"
+        state: directory
+        mode: "0770"        # not applying
+        owner: sg-transfer  # not applying
+        group: sg-transfer  # not applying
+
+    - name: Create MFT directory
+      file:
+        path: "{{ mft_directory }}"
+        state: directory
+
+    - name: Add entry to space-domains.txt
+      lineinfile:
+        path: "{{ space_domain_path }}"
+        state: present
+        regexp: "^{{ os_project }}"
+        line: "{{ os_project }}-{{ win_project }}"
+
+    - name: Copy smb-credential template to os-transfer
+      template:
+        dest: "{{ credentials_path }}"
+        src: smb-credentials.j2
+  delegate_to: os-transfer
+
+- name: Mount Filesystem
+  tags: mount_filesystem
+  block:
+    - name: Mount filesystem on os-transfer
+      ansible.posix.mount:
+        src: "//{{ hostvars[inventory_hostname].ansible_host }}/File_Transfer"
+        path: "{{ mount_directory }}"
+        opts: "credentials={{ credentials_path }},iocharset=utf8"
+        state: mounted
+        fstype: cifs
+  delegate_to: os-transfer

@@ -1,0 +1,98 @@
+---
+- name: Wazuh Agent
+  hosts: "meta-win_project_{{ win_project }}:&meta-os_windows"
+  gather_facts: false
+  vars_files:
+    - ../vars/common.yml
+    - ../vars/connection.yml
+  vars:
+    wazuh_server: 10.22.10.200
+    wazuh_url: https://packages.wazuh.com/4.x/windows
+    wazuh_msi: wazuh-agent-4.7.2-1.msi
+    ansible_password: "{{ vm_password }}"
+  tasks:
+    - name: Wazuh Agent
+      tags: 
+        - wazuh
+        - wazuh_agent
+      block:
+        - name: Download agent
+          win_get_url:
+            url: "{{ wazuh_url }}/{{ wazuh_msi }}"
+            dest: "C:\\Users\\Administrator\\AppData\\Local\\Temp{{ wazuh_msi }}"
+          when: |
+            inventory_hostname not in groups['meta-type_client']|default([]) or
+            project_zone == 'standard'
+
+        - name: Download agent using proxy
+          vars:
+            proxy_ip: "{{ os_project }}-{{ win_project }}-proxy"
+          win_get_url:
+            url: "{{ wazuh_url }}/{{ wazuh_msi }}"
+            dest: "C:\\Users\\Administrator\\AppData\\Local\\Temp{{ wazuh_msi }}"
+          when: |
+            inventory_hostname in groups['meta-type_client']|default([]) and
+            project_zone == 'protected'
+
+        - name: Install agent
+          win_package:
+            path: "C:\\Users\\Administrator\\AppData\\Local\\Temp{{ wazuh_msi }}"
+            arguments: 
+              - /q
+              - WAZUH_MANAGER={{ wazuh_server }} 
+              - WAZUH_REGISTRATION_SERVER={{ wazuh_server }}
+            state: present
+
+        - name: Start Service
+          win_service:
+            name: WazuhSvc
+            start_mode: auto
+            state: started
+
+- name: Wazuh Groups
+  hosts: eidf-wazuh01
+  gather_facts: false
+  vars_files:
+    - ../vars/common.yml
+  tasks:
+    - name: Wazuh Groups
+      tags: 
+        - wazuh
+        - wazuh_group
+      block:
+        - name: wait for agents to be ready
+          pause:
+            seconds: 20
+
+        - name: Create New group for the windows project
+          shell: |
+            sudo /var/ossec/bin/agent_groups -a -g {{ win_project }} -q
+
+        - name: Add the space hosts to openstack-vms
+          shell: |
+            for i in $(sudo /var/ossec/bin/agent_groups -l -g default | grep {{ win_project }} | awk '{ print $2 }')
+            do 
+              sudo /var/ossec/bin/agent_groups -a -i $i -g openstack-vms -q
+            done
+
+            for i in $(sudo /var/ossec/bin/agent_groups -l -g default | grep {{ win_project }} | awk '{ print $2 }')
+            do 
+              sudo /var/ossec/bin/agent_groups -a -i $i -g {{ win_project }} -q
+            done
+    
+            for i in $(sudo /var/ossec/bin/agent_groups -l -g default | grep {{ win_project }} | awk '{ print $2 }')
+            do 
+              sudo /var/ossec/bin/agent_groups -a -i $i -g space-vms -q
+            done
+
+    - name: Remove the space hosts from openstack-vms
+      shell: |
+        for i in $(sudo /var/ossec/bin/agent_groups -l -g default | grep {{ win_project }} | awk '{ print $2 }')
+        do 
+          sudo /var/ossec/bin/manage_agents -r $i
+        done
+        sudo /var/ossec/bin/agent_groups -r -g {{ win_project }} -q
+      tags: 
+        - never
+        - teardown
+        

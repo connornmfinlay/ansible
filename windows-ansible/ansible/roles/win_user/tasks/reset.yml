@@ -1,0 +1,10 @@
+---
+- name: Reset AD user password
+  block:
+    - name: Reset AD user password
+      microsoft.ad.user:
+        name: "{{ username }}"
+        path: ou=Project Users,dc={{ win_project }},dc=loc
+        password: "{{ password }}"
+        password_expired: true
+        state: present

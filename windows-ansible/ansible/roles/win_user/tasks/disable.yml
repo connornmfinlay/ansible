@@ -1,0 +1,9 @@
+---
+- name: Disable AD user
+  block:
+    - name: Disable user in AD
+      microsoft.ad.user:
+        name: "{{ username }}"
+        path: ou=Project Users,dc={{ win_project }},dc=loc
+        state: present
+        enabled: no

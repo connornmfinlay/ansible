@@ -1,0 +1,31 @@
+---
+- name: Configure WSUS server
+  tags: configure_wsus
+  block:
+    #- name: Check if Content directory already exists 
+    #  win_stat:
+    #    path: "{{ wsus_content_directory }}"
+    #  register: folder
+    #  failed_when: folder.stat.exists
+
+    #- name: Set WSUS Content Directory
+    #  tags: set_wsus_content_dir
+    #  win_shell: |
+    #    CD "C:\Program Files\Update Services\Tools"
+    #    .\wsusutil.exe postinstall CONTENT_DIR={{ wsus_content_directory }}
+    #  when: not folder.stat.exists
+
+    - name: WSUS Script
+      tags: wsus_script
+      block: 
+        - name: Copy WSUS script
+          win_copy:
+            src: "{{ wsus_script }}" 
+            dest: "{{ script_dir }}\\{{ wsus_script }}"
+            force: true
+          tags: copy_wsus_script
+    
+        #- name: Apply WSUS script
+           #win_shell: "powershell {{ script_dir }}\\{{ wsus_script }}"
+           #tags: apply_wsus_script
+

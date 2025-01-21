@@ -1,0 +1,33 @@
+- name: Bootstrap a Kubernetes Cluster Node
+  hosts: all-nodes
+  become: yes
+  vars_files:
+    - ../group_vars/login.yaml
+    - ../group_vars/checkmk.yaml
+    - ../passwd.yml
+    - "../host_vars/{{ inventory_hostname }}.yaml"
+  tasks:
+
+  - name: Get production interface names
+    shell: "ip a | grep 'master bond0' | awk '{ print $2 }' | grep en | rev | cut -c2- | rev | tail -n 1"
+    register: firstprodinterface
+
+  - debug:
+      msg: "{{ firstprodinterface.stdout }}"
+
+  - name: Start Interface
+    shell: "nmcli connection up 'System {{ firstprodinterface.stdout }}'"
+
+  - name: Pause for Network Manager to restart
+    pause:
+      seconds: 5
+       
+  - name: Verify Bond Speed
+    shell: "ethtool bond0 | grep Speed"
+    register: bondspeed
+    tags: verifyspeed
+
+  - debug:
+      msg: "Speed is good ( {{ bondspeed.stdout }} )"
+    when: '"200000Mb/s" in bondspeed.stdout'
+    tags: verifyspeed

@@ -1,0 +1,24 @@
+- name: Bootstrap a Kubernetes Cluster Node
+  hosts: search
+  become: yes
+  vars_files:
+    - ../group_vars/login.yaml
+  tasks:
+  - name: Get production interface names
+    shell: "ip a | grep 'master bond0' | awk '{ print $2 }' | grep en | rev | cut -c2- | rev | head -n 1"
+    register: firstprodinterface
+
+  - name: Get production interface names
+    shell: "ip a | grep 'master bond0' | awk '{ print $2 }' | grep en | rev | cut -c2- | rev | tail -n 1"
+    register: secondprodinterface
+
+  - name: Get Serial Number of interface 1
+    shell: "ethtool -m {{ firstprodinterface.stdout }} | grep -i 'vendor sn' | awk '{ print $4 }'"
+    register: int1
+
+  - name: Get Serial Number of interface 2
+    shell: "ethtool -m {{ secondprodinterface.stdout }} | grep -i 'vendor sn' | awk '{ print $4 }'"
+    register: int2
+
+  - debug:
+      msg: "{{ firstprodinterface.stdout }} {{ int1.stdout_lines }} {{ secondprodinterface.stdout }} {{ int2.stdout_lines }}"

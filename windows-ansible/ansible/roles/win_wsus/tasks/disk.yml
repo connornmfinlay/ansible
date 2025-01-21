@@ -1,0 +1,20 @@
+---
+- name: WSUS disk
+  tags: wsus_disk
+  block:
+    - name: Initialise WSUS disk
+      win_initialize_disk:
+        disk_number: 1
+
+    - name: Partition WSUS disk
+      win_partition:
+        drive_letter: "{{ wsus_drive_letter }}"
+        disk_number: 1
+        partition_size: -1
+        state: present
+
+    - name: Create NTFS filesystem on WSUS disk
+      win_format:
+        drive_letter: "{{ wsus_drive_letter }}"
+        file_system: NTFS
+        new_label: "{{ wsus_volume_label }}"

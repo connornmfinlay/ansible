@@ -1,0 +1,68 @@
+ilo_ip: "{{ lo_ip_mapping[inventory_hostname]['ip'] }}"
+ilo_baseuri: "{{ lo_ip_mapping[inventory_hostname]['baseuri'] }}"
+
+lo_ip_mapping:
+  vars:
+    eidf-k8s-gpu01:
+      ip: 10.20.24.1
+      baseuri: "https://10.20.24.1"
+    eidf-ks8-gpu02:
+      ip: 10.20.24.2
+      baseuri: "https://10.20.24.2"
+    eidf-k8s-gpu03:
+      ip: 10.20.24.3
+      baseuri: "https://10.20.24.3"
+    eidf-k8s-gpu04:
+      ip: 10.20.24.4
+      baseuri: "https://10.20.24.4"
+    eidf-k8s-gpu05:
+      ip: 10.20.24.5
+      baseuri: "https://10.20.24.5"
+    eidf-k8s-gpu06:
+      ip: 10.20.24.6
+      baseuri: "https://10.20.24.6"
+    eidf-k8s-gpu07:
+      ip: 10.20.24.7
+      baseuri: "https://10.20.24.7"
+    eidf-k8s-gpu08:
+      ip: 10.20.24.8
+      baseuri: "https://10.20.24.8"
+    eidf-k8s-gpu09:
+      ip: 10.20.24.9
+      baseuri: "https://10.20.24.9"
+    eidf-k8s-gpu10:
+      ip: 10.20.24.10
+      baseuri: "https://10.20.24.10"
+    eidf-k8s-gpu11:
+      ip: 10.20.24.11
+      baseuri: "https://10.20.24.11"
+    eidf-k8s-gpu12:
+      ip: 10.20.24.12
+      baseuri: "https://10.20.24.12"
+    eidf-k8s-gpu13:
+      ip: 10.20.24.13
+      baseuri: "https://10.20.24.13"
+    eidf-k8s-gpu14:
+      ip: 10.20.24.14
+      baseuri: "https://10.20.24.14"
+    eidf-k8s-gpu15:
+      ip: 10.20.24.15
+      baseuri: "https://10.20.24.15"
+    eidf-k8s-gpu16:
+      ip: 10.20.24.16
+      baseuri: "https://10.20.24.16"
+    eidf-k8s-gpu17:
+      ip: 10.20.24.17
+      baseuri: "https://10.20.24.17"
+    eidf-k8s-gpu18:
+      ip: 10.20.24.18
+      baseuri: "https://10.20.24.18"
+    eidf-k8s-gpu19:
+      ip: 10.20.24.19
+      baseuri: "https://10.20.24.19"
+    eidf-k8s-gpu20:
+      ip: 10.20.24.20
+      baseuri: "https://10.20.24.20"
+    eidf-k8s-gpu25:
+      ip: 10.20.24.25
+      baseuri: "https://10.20.24.25" 
