@@ -1,9 +1,0 @@
----
-- hosts: "meta-variant_chocolatey_server"
-  gather_facts: false
-  vars_files:
-    - ../vars/common.yml
-    - ../vars/connection.yml
-  roles:
-    - role: win_chocolatey
-      tags: win_chocolatey

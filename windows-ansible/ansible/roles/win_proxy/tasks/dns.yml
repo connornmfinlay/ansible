@@ -1,8 +1,0 @@
----
-
-- name: Create chocolatey server dns record
-  ansible.builtin.lineinfile:
-    path: /etc/hosts
-    regexp: '{{ choco_hostname }}$'
-    line: "{{ hostvars[choco_server].ansible_host }} {{ choco_hostname }}"
-    state: present

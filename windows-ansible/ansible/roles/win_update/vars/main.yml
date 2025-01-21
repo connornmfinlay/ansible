@@ -1,6 +1,0 @@
----
-services:
-  - wuauserv
-  - bits
-  - cryptSvc
-  - msiserver

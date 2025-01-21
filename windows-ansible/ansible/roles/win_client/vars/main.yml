@@ -1,1 +1,0 @@
-repo_url: 'http://{{ win_project }}-choc.{{ win_project }}.loc/chocolatey'

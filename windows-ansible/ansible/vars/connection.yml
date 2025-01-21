@@ -1,8 +1,0 @@
-ansible_user: Administrator
-ansible_psrp_connection_timeout: 1200
-ansible_psrp_reconnection_retries: 10
-ansible_psrp_read_timeout: 1200
-ansible_connection: psrp
-ansible_psrp_auth: ntlm
-ansible_psrp_protocol: https
-ansible_psrp_cert_validation: ignore

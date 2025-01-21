@@ -1,4 +1,0 @@
-mount_directory: /mnt/windows/{{ os_project }}-{{ win_project }}
-mft_directory: /mnt/os-transfer/windows-mft/{{ os_project }}-{{ win_project }}
-space_domain_path: /root/scripts/space-domains.txt
-credentials_path: /root/windows-envs/.{{ os_project }}-{{ win_project }}-smbcredentials

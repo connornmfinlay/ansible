@@ -1,5 +1,0 @@
----
-checkmk_folder: eidf-k8s-gpus
-ip_address: 10.21.24.7 
-mgmt_interface: ens22f0
-

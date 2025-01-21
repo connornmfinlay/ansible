@@ -1,9 +1,0 @@
----
-- name: Enable AD user
-  block:
-    - name: Enable user in AD
-      microsoft.ad.user:
-        name: "{{ username }}"
-        path: ou=Project Users,dc={{ win_project }},dc=loc
-        state: present
-        enabled: yes

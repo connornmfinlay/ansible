@@ -1,9 +1,0 @@
----
-- hosts: "meta-name_fs01"
-  # many ansible options set in /etc/ansible/hosts
-  gather_facts: false
-  vars_files:
-    - ../vars/common.yml
-  roles:
-    - role: win_transfer
-      tags: win_transfer
