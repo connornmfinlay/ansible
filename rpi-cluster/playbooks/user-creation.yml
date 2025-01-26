@@ -5,9 +5,10 @@
 
   tasks:
     - name: Adding the user
-      user:
+      ansible.builtin.user:
         name: cfinlay
         state: present
         shell: /bin/bash
         create_home: true
         ssh_key_bits: 256
+        groups: sudo

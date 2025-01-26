@@ -1,0 +1,55 @@
+---
+- name: Install Golang
+  hosts: all
+  become: true
+
+  vars:
+    golang_version: "1.23.5" 
+    golang_download_url: "https://go.dev/dl/go{{ golang_version }}.linux-amd64.tar.gz"
+    install_path: "/usr/local"
+
+  tasks:
+    - name: Ensure dependencies are installed
+      ansible.builtin.package:
+        name: curl
+        state: present
+
+    - name: Download Golang tarball
+      ansible.builtin.get_url:
+        url: "{{ golang_download_url }}"
+        dest: "/tmp/go{{ golang_version }}.linux-amd64.tar.gz"
+
+    - name: Remove any existing Go installation
+      ansible.builtin.file:
+        path: "{{ install_path }}/go"
+        state: absent
+
+    - name: Extract Golang tarball to /usr/local
+      ansible.builtin.unarchive:
+        src: "/tmp/go{{ golang_version }}.linux-amd64.tar.gz"
+        dest: "{{ install_path }}"
+        remote_src: yes
+
+    - name: Set up Golang environment variables
+      ansible.builtin.copy:
+        dest: /etc/profile.d/golang.sh
+        content: |
+          export PATH=$PATH:{{ install_path }}/go/bin
+          export GOPATH=$HOME/go
+          export PATH=$PATH:$GOPATH/bin
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Ensure the environment variables are loaded
+      ansible.builtin.shell: source /etc/profile.d/golang.sh
+      args:
+        executable: /bin/bash
+
+    - name: Verify Go installation
+      command: go --version
+      register: go_version_output
+
+    - name: Debug Go version output
+      debug:
+        var: go_version_output.stdout
